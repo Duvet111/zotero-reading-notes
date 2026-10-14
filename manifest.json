@@ -1,0 +1,14 @@
+{
+  "manifest_version": 2,
+  "name": "随读笔记",
+  "version": "0.3.5",
+  "description": "在 Zotero 中自由记笔记，摘录文字和图片，并保留原文位置。",
+  "applications": {
+    "zotero": {
+      "id": "reading-notes@local.codex",
+      "update_url": "https://reading-notes.invalid/updates.json",
+      "strict_min_version": "9.0.6",
+      "strict_max_version": "9.0.*"
+    }
+  }
+}
