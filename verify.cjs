@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
-const source = fs.readFileSync('work/plugin/reading-notes.js', 'utf8');
+const source = fs.readFileSync('reading-notes.js', 'utf8');
 
 function setup() {
   const records = new Map();

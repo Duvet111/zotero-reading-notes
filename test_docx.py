@@ -3,7 +3,7 @@ import subprocess, json, base64, re, zipfile, io
 from lxml import etree
 from PIL import Image
 
-root = Path(__file__).resolve().parent.parent
+root = Path(__file__).resolve().parent
 fixture = '''<div data-schema-version="9"><h1>阅读笔记</h1>
 <p><span class="highlight" data-annotation="source">原文摘录 &amp; source</span><span class="citation" data-citation="x">不要导出的长引用</span> 我的行内想法</p>
 <p>我的想法 <strong>加粗</strong> <em>斜体</em> <a href="zotero://open-pdf/library/items/ABCDEFGH">普通文字链接</a></p>
@@ -13,7 +13,7 @@ fixture = '''<div data-schema-version="9"><h1>阅读笔记</h1>
 image = io.BytesIO()
 Image.new('RGB', (120, 160), '#9ca3af').save(image, 'PNG')
 png = image.getvalue()
-html = '''<!doctype html><html><head><meta charset="utf-8"><script src="plugin/docx.js"></script></head><body><pre id="result">pending</pre><script>
+html = '''<!doctype html><html><head><meta charset="utf-8"><script src="docx.js"></script></head><body><pre id="result">pending</pre><script>
 (async () => {
  try {
   const bytes = Uint8Array.from(atob(PNG), c => c.charCodeAt(0));
@@ -22,12 +22,12 @@ html = '''<!doctype html><html><head><meta charset="utf-8"><script src="plugin/d
  } catch(e) { document.getElementById('result').textContent=JSON.stringify({ok:false,error:String(e),stack:e.stack}); }
 })();</script></body></html>'''
 html = html.replace('PNG', json.dumps(base64.b64encode(png).decode())).replace('FIXTURE', json.dumps(fixture, ensure_ascii=True))
-testfile = root / 'work/docx-browser-test.html'
+testfile = root / 'docx-browser-test.html'
 testfile.write_text(html, encoding='utf-8')
-runner = '''import {DOMParser} from './test-deps/linkedom-worker.mjs';
+runner = '''import {DOMParser} from './linkedom-worker.mjs';
 import fs from 'node:fs'; import vm from 'node:vm';
 const context=vm.createContext({DOMParser,TextEncoder,Uint8Array,DataView,atob,console});
-vm.runInContext(fs.readFileSync('work/plugin/docx.js','utf8'),context);
+vm.runInContext(fs.readFileSync('docx.js','utf8'),context);
 const fixture=FIXTURE;
 const image=Uint8Array.from(Buffer.from(PNG,'base64'));
 try {
@@ -35,13 +35,13 @@ try {
  console.log(JSON.stringify({ok:true,zip:Buffer.from(bytes).toString('base64')}));
 } catch(e) {console.log(JSON.stringify({ok:false,error:String(e),stack:e.stack}));}
 '''.replace('FIXTURE', json.dumps(fixture, ensure_ascii=True)).replace('PNG', json.dumps(base64.b64encode(png).decode()))
-(root / 'work/docx-dom-test.mjs').write_text(runner, encoding='utf-8')
-result = subprocess.run(['node', 'work/docx-dom-test.mjs'], cwd=root, capture_output=True, timeout=25)
+(root / 'docx-dom-test.mjs').write_text(runner, encoding='utf-8')
+result = subprocess.run(['node', 'docx-dom-test.mjs'], cwd=root, capture_output=True, timeout=25)
 assert result.returncode == 0, result.stderr.decode(errors='replace')
 report = json.loads(result.stdout)
 assert report.get('ok'), report
 data = base64.b64decode(report['zip'])
-(root / 'work/docx-export-test.docx').write_bytes(data)
+(root / 'docx-export-test.docx').write_bytes(data)
 with zipfile.ZipFile(io.BytesIO(data)) as archive:
  assert archive.testzip() is None
  for name in archive.namelist():

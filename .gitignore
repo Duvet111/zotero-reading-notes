@@ -1,9 +1,9 @@
 __pycache__/
 *.pyc
 node_modules/
-work/docx-browser-test.html
-work/docx-dom-test.mjs
-work/docx-export-test.docx
-work/native-editor.js
-work/native-engine-export.txt
+docx-browser-test.html
+docx-dom-test.mjs
+docx-export-test.docx
+native-editor.js
+native-engine-export.txt
 outputs/*-source.zip

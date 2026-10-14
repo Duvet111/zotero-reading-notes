@@ -1,14 +1,14 @@
-import fs from 'node:fs';import vm from 'node:vm';import {DOMParser} from './test-deps/linkedom-worker.mjs';
+import fs from 'node:fs';import vm from 'node:vm';import {DOMParser} from './linkedom-worker.mjs';
 const doc=new DOMParser().parseFromString('<html><head></head><body></body></html>','text/html');
-let source=fs.readFileSync('work/native-editor.js','utf8');
+let source=fs.readFileSync('native-editor.js','utf8');
 const cut=source.indexOf(',Va=[',source.indexOf('qa=function'));
 source=source.slice(0,cut)+';self.native={schema:$a,EditorState:Cn,TextSelection:un,Slice:ge,Fragment:he,parse:qa};})(),o})()));';
 const context=vm.createContext({console,setTimeout,clearTimeout,document:doc,window:doc.defaultView,navigator:{userAgent:'Firefox/128.0',platform:'Win32'},React:{},ReactDOM:{}});context.self=context;
 vm.runInContext(source,context);
 console.log(Object.keys(context.native));
-fs.writeFileSync('work/native-engine-export.txt',Object.keys(context.native.schema.nodes).join(','));
+fs.writeFileSync('native-engine-export.txt',Object.keys(context.native.schema.nodes).join(','));
 import assert from 'node:assert/strict';
-const original=fs.readFileSync('work/native-editor.js','utf8');
+const original=fs.readFileSync('native-editor.js','utf8');
 const method=original.indexOf('insertHTML(e,t){');
 const start=original.indexOf('function(e,t){return function(n,r){',method);
 const stop=original.indexOf('(e,t)(this.view.state,this.view.dispatch)',start);
@@ -26,7 +26,7 @@ const pluginContext=vm.createContext({Components:{utils:{cloneInto(value,target)
   cloneCalls++;
   return vm.runInContext('[]',context);
 }}}});
-vm.runInContext(fs.readFileSync('work/plugin/reading-notes.js','utf8'),pluginContext);
+vm.runInContext(fs.readFileSync('reading-notes.js','utf8'),pluginContext);
 for (const mode of ['empty','after-enter','after-text','inside-old-excerpt']) {
   let doc,caret;
   const p=(text)=>schema.nodes.paragraph.create(null,text?schema.text(text):null);

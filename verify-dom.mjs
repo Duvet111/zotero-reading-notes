@@ -1,4 +1,4 @@
-import { DOMParser } from './test-deps/linkedom-worker.mjs';
+import { DOMParser } from './linkedom-worker.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
@@ -10,7 +10,7 @@ context.Zotero = { EditorInstanceUtilities: { serializeAnnotations: () => ({
 }) } };
 let appearance;
 context.Zotero.Prefs = { get: () => appearance };
-vm.runInContext(fs.readFileSync('work/plugin/reading-notes.js', 'utf8'), context);
+vm.runInContext(fs.readFileSync('reading-notes.js', 'utf8'), context);
 const app = context.ReadingNotes;
 app.insertAtCaret = (instance, html) => { posted = { action: "insertHTML", html }; };
 await app.insertStyled({
@@ -70,7 +70,7 @@ assert.equal(initialState.fullScreen,true);
 delete app.switchWindow;
 app.assertCurrent = savedAssert;
 // Reload after the window-state stub to exercise the actual switch implementation below.
-vm.runInContext(fs.readFileSync('work/plugin/reading-notes.js', 'utf8'), context);
+vm.runInContext(fs.readFileSync('reading-notes.js', 'utf8'), context);
 console.log('PASS: switching preserves both maximize and fullscreen state.');
 
 const switchedApp = context.ReadingNotes;
@@ -99,7 +99,7 @@ assert.equal(switchedApp.detached.has(100), false);
 console.log('PASS: detached-to-side switch awaits save before closing the editor and reopening the same note.');
 
 // Opening in detached mode must return its actual editor instead of the side editor.
-vm.runInContext(fs.readFileSync('work/plugin/reading-notes.js', 'utf8'), context);
+vm.runInContext(fs.readFileSync('reading-notes.js', 'utf8'), context);
 const routing = context.ReadingNotes;
 routing.alive = true;
 routing.assertCurrent = () => main;
@@ -117,7 +117,7 @@ console.log('PASS: excerpts route to the detached editor while detached mode is 
 // Native insertion/selection is tested against the installed engine in verify-native.mjs.
 
 // Exercise actual settings markup, option clicks, reset and numeric saving.
-const settingsDoc=new DOMParser().parseFromString(fs.readFileSync('work/plugin/settings.xhtml','utf8'),'text/html');
+const settingsDoc=new DOMParser().parseFromString(fs.readFileSync('settings.xhtml','utf8'),'text/html');
 let savedSettings,closed=false;
 context.Zotero.Prefs.set=(key,value)=>{savedSettings=JSON.parse(value);};
 for (const input of settingsDoc.querySelectorAll('input')) {
@@ -142,6 +142,6 @@ routing.settingsWindow={closed:false,focus(){focused++;}};
 await routing.showSettings({});await routing.showSettings({});
 assert.equal(focused,2);
 console.log('PASS: repeated settings clicks focus the existing dialog without rebuilding fields.');
-assert.ok(fs.readFileSync('work/plugin/reading-notes.js','utf8').includes('chrome://reading-notes/content/settings.xhtml'));
-assert.ok(fs.readFileSync('work/plugin/bootstrap.js','utf8').includes('registerChrome'));
+assert.ok(fs.readFileSync('reading-notes.js','utf8').includes('chrome://reading-notes/content/settings.xhtml'));
+assert.ok(fs.readFileSync('bootstrap.js','utf8').includes('registerChrome'));
 console.log('PASS: settings uses a bundled registered chrome resource.');
